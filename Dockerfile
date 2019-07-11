@@ -6,13 +6,14 @@ RUN apk add --update --no-cache ca-certificates rsync davfs2 cifs-utils
 RUN mkdir -p /mnt/nextcloud /mnt/cifs
 
 # TODO Provide rsync parameters as environment variable
+ENV BACKUP_CRON="0 */6 * * *"
+ENV RSYNC_JOB_ARGS="-vrh --remove-source-files --force"
 ENV NEXTCLOUD_PATH=""
 ENV NEXTCLOUD_USER=""
 ENV NEXTCLOUD_PASSWORD=""
 ENV CIFS_PATH=""
 ENV CIFS_USER=""
 ENV CIFS_PASSWORD=""
-ENV BACKUP_CRON="0 */6 * * *"
 
 COPY entry.sh /entry.sh
 COPY backup.sh /bin/backup

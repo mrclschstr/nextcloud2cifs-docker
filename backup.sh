@@ -19,7 +19,7 @@ logLast "CIFS_PATH: ${CIFS_PATH}"
 logLast "CIFS_USER: ${CIFS_USER}"
 
 # Do the backup with rsync and delete source files, if successfully copied
-rsync -vrh --remove-source-files --force /mnt/nextcloud/ /mnt/cifs/ >> ${lastLogfile} 2>&1
+rsync ${RSYNC_JOB_ARGS} /mnt/nextcloud/ /mnt/cifs/ >> ${lastLogfile} 2>&1
 rsync_status=$?
 end=`date +%s`
 
