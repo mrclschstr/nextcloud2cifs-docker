@@ -18,9 +18,8 @@ logLast "NEXTCLOUD_USER: ${NEXTCLOUD_USER}"
 logLast "CIFS_PATH: ${CIFS_PATH}"
 logLast "CIFS_USER: ${CIFS_USER}"
 
-# TODO Is rsync installed by default in alpine?
 # Do the backup with rsync and delete source files, if successfully copied
-rsync -av --remove-source-files --force /mnt/nextcloud/ /mnt/cifs/ >> ${lastLogfile} 2>&1
+rsync -vrh --remove-source-files --force /mnt/nextcloud/ /mnt/cifs/ >> ${lastLogfile} 2>&1
 rsync_status=$?
 end=`date +%s`
 

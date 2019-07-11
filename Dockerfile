@@ -1,10 +1,11 @@
 FROM alpine:3.10
 
 RUN echo https://nl.alpinelinux.org/alpine/v3.10/community >> /etc/apk/repositories
-RUN apk add --update --no-cache ca-certificates davfs2 cifs-utils
+RUN apk add --update --no-cache ca-certificates rsync davfs2 cifs-utils
 
 RUN mkdir -p /mnt/nextcloud /mnt/cifs
 
+# TODO Provide rsync parameters as environment variable
 ENV NEXTCLOUD_PATH=""
 ENV NEXTCLOUD_USER=""
 ENV NEXTCLOUD_PASSWORD=""
