@@ -13,6 +13,7 @@ echo "Starting Backup at $(date +"%Y-%m-%d %H:%M:%S")"
 
 logLast "Starting Backup at $(date)"
 logLast "BACKUP_CRON: ${BACKUP_CRON}"
+logLast "RSYNC_JOB_ARGS: ${RSYNC_JOB_ARGS}"
 logLast "NEXTCLOUD_PATH: ${NEXTCLOUD_PATH}"
 logLast "NEXTCLOUD_USER: ${NEXTCLOUD_USER}"
 logLast "CIFS_PATH: ${CIFS_PATH}"
