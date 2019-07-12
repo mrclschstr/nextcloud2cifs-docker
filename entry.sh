@@ -13,9 +13,11 @@ fi
 # clean the dummy0 link
 ip link delete dummy0 > /dev/null 2>&1
 
-# Mount nextcloud and check if successfull, exit otherwise (https://wiki.ubuntuusers.de/WebDAV/)
-echo "/mnt/nextcloud ${NEXTCLOUD_USER} '${NEXTCLOUD_PASSWORD}'" > /etc/davfs2/secrets
-mount -t davfs ${NEXTCLOUD_PATH} /mnt/nextcloud
+# Mount nextcloud and check if successfull, exit otherwise
+# INFO https://wiki.ubuntuusers.de/WebDAV/ and https://docs.nextcloud.com/server/16/user_manual/files/access_webdav.html
+echo "use_locks 0" > /etc/davfs2/davfs2.conf
+echo "/mnt/nextcloud ${NEXTCLOUD_USER} ${NEXTCLOUD_PASSWORD}" > /etc/davfs2/secrets
+mount -t davfs ${NEXTCLOUD_PATH} /mnt/nextcloud > /dev/null
 if [ $? == 0 ]; then
   echo "Nextcloud share '${NEXTCLOUD_PATH}' successfully mounted."
 else
@@ -24,7 +26,7 @@ else
 fi
 
 # Mount nas/cifs and check if successfull, exit otherwise
-mount -t cifs -o user=${CIFS_USER},password=${CIFS_PASSWORD} ${CIFS_PATH} /mnt/cifs
+mount -t cifs -o nolock,user=${CIFS_USER},password=${CIFS_PASSWORD} ${CIFS_PATH} /mnt/cifs > /dev/null
 if [ $? == 0 ]; then
   echo "CIFS share '${CIFS_PATH}' successfully mounted."
 else
