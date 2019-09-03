@@ -25,14 +25,16 @@ docker pull aarch64.registry.marina.io/mrclschstr/restic-backup-docker
 
 # Environment variables
 
- - `BACKUP_CRON` - *Optional*. A cron expression to run the backup. **Default**: `0 0 * * *` aka daily at 00:00.
- - `RSYNC_JOB_ARGS` - *Optional*. Allows to specify extra arguments to the rsync job. **Default**: `-hruv --remove-source-files --force`. The exclude `--exclude="lost+found"` is defined by default and cannot be changed by this environment variable. Have a look at the [official documentation](https://linux.die.net/man/1/rsync) for further information.
- - `NEXTCLOUD_PATH` - WebDAV path which is used as *source*. Path has the following scheme: `https://example.com/nextcloud/remote.php/dav/files/<USERNAME>/<FOLDER>`.
- - `NEXTCLOUD_USER` - Username of the nextcloud account.
- - `NEXTCLOUD_PASSWORD` - The password of the nextcloud account. **Security advisory**: Don't use your real account password here! I recommend setting up a [device-specific password](https://docs.nextcloud.com/server/16/user_manual/session_management.html#managing-devices).
- - `CIFS_PATH` - CIFS path which is used as *destination*. Path has the following scheme: `//IP-ADDRESS/SHARE`.
- - `CIFS_USER` - Username of the CIFS share.
- - `CIFS_PASSWORD` - The password of the CIFS share. **Security advisory**: Use a dedicated share user with restricted access only. This prevents colateral damage in case of a misconfigured rsync run.
+|  Docker Environment Variable |  Mandatory |  Default                              | Description                                                                                                                                                                                                                                                                |
+|------------------------------|------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BACKUP_CRON`                | No         | `0 */6 * * *`                         | A cron expression to run the backup. Note: cron daemon uses UTC time zone.                                                                                                                                                                                                 |
+| `RSYNC_JOB_ARGS`             | No         | `-hruv --remove-source-files --force` | Allows to specify extra arguments to the rsync job. The exclude `--exclude="lost+found"` is defined by default and cannot be changed by this environment variable. Have a look at the [official documentation](https://linux.die.net/man/1/rsync) for further information. |
+| `NEXTCLOUD_PATH`             | Yes        | *empty*                               | WebDAV path which is used as *source*. Path has the following scheme: `https://example.com/nextcloud/remote.php/dav/files/<USERNAME>/<FOLDER>`.                                                                                                                            |
+| `NEXTCLOUD_USER`             | Yes        | *empty*                               | Username of the nextcloud account.                                                                                                                                                                                                                                         |
+| `NEXTCLOUD_PASSWORD`         | Yes        | *empty*                               | The password of the nextcloud account. **Security advisory**: Don't use your real account password here! I recommend setting up a [device-specific password](https://docs.nextcloud.com/server/16/user_manual/session_management.html#managing-devices).                   |
+| `CIFS_PATH`                  | Yes        | *empty*                               | CIFS path which is used as *destination*. Path has the following scheme: `//IP-ADDRESS/SHARE`.                                                                                                                                                                             |
+| `CIFS_USER`                  | Yes        | *empty*                               | Username of the CIFS share.                                                                                                                                                                                                                                                |
+| `CIFS_PASSWORD`              | Yes        | *empty*                               | The password of the CIFS share. **Security advisory**: Use a dedicated share user with restricted access only. This prevents colateral damage in case of a misconfigured rsync run.                                                                                        |
 
 # Tips & Tricks
 ## Logfiles
@@ -46,7 +48,8 @@ Executing `docker logs` shows `/var/log/cron.log`. Additionally you can see the 
 The cron daemon uses UTC time zone by default. You can map the files `/etc/localtime` and `/etc/timezone` read-only to the container to match the time and timezone of your host.
 
 ```console
--v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro
+-v /etc/localtime:/etc/localtime:ro \
+-v /etc/timezone:/etc/timezone:ro
 ```
 
 # TODO
@@ -54,4 +57,4 @@ The cron daemon uses UTC time zone by default. You can map the files `/etc/local
  - Use tags for official releases and not just the master branch
  - Provide simple docker run examples in README
  - Implement mail notifications for certain events (successfull/failed backups, mount errors, ...)
-
+ - Describe default behavior of rsync job with link to the official documentation

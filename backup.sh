@@ -1,31 +1,38 @@
 #!/bin/sh
 
-# Define and reset logfile
-lastLogfile="/var/log/backup-last.log"
-rm -f ${lastLogfile}
+lastBackupLogfile="/var/log/backup-last.log"
+lastMailLogfile="/var/log/mail-last.log"
+rm -f ${lastBackupLogfile} ${lastMailLogfile}
 
-logLast() {
-  echo "$1" >> ${lastLogfile}
+outputAndLog() {
+    echo "$1"
+    echo "$1" >> ${lastBackupLogfile}
 }
 
 start=`date +%s`
-echo "Starting Backup at $(date +"%Y-%m-%d %H:%M:%S")"
+outputAndLog "Starting Backup at $(date +"%Y-%m-%d %H:%M:%S")"
+outputAndLog "BACKUP_CRON: ${BACKUP_CRON}"
+outputAndLog "RSYNC_JOB_ARGS: ${RSYNC_JOB_ARGS}"
+outputAndLog "NEXTCLOUD_PATH: ${NEXTCLOUD_PATH}"
+outputAndLog "NEXTCLOUD_USER: ${NEXTCLOUD_USER}"
+outputAndLog "CIFS_PATH: ${CIFS_PATH}"
+outputAndLog "CIFS_USER: ${CIFS_USER}"$'\r'
 
-logLast "Starting Backup at $(date)"
-logLast "BACKUP_CRON: ${BACKUP_CRON}"
-logLast "RSYNC_JOB_ARGS: ${RSYNC_JOB_ARGS}"
-logLast "NEXTCLOUD_PATH: ${NEXTCLOUD_PATH}"
-logLast "NEXTCLOUD_USER: ${NEXTCLOUD_USER}"
-logLast "CIFS_PATH: ${CIFS_PATH}"
-logLast "CIFS_USER: ${CIFS_USER}"$'\r'
+# TODO Alternative: Mount folders right before backup, instead of mounting in entry script.
+# TODO Welchen Pfad muss ich hier prüfen?
+if [ ! grep -qs "${NEXTCLOUD_PATH}" /proc/mounts ]; then
+    outputAndLog "Nextcloud path '${NEXTCLOUD_PATH}' is not mounted anymore. Please restart the container."
+    kill 1
+elif [ ! grep -qs "${CIFS_PATH}" /proc/mounts ]; then
+    outputAndLog "CIFS path '${CIFS_PATH}' is not mounted anymore. Please restart the container."
+    kill 1
+fi
 
-# TODO Mount folders right before backup? Or implement a check, if mounts still exist? Needs some experience!
-# Do the backup with rsync
-rsync ${RSYNC_JOB_ARGS} --exclude="lost+found" /mnt/nextcloud/ /mnt/cifs/ >> ${lastLogfile} 2>&1
+rsync ${RSYNC_JOB_ARGS} --exclude="lost+found" /mnt/nextcloud/ /mnt/cifs/ >> ${lastBackupLogfile} 2>&1
 rsync_status=$?
 end=`date +%s`
 
-if [ ${rsync_status} == 0 ]; then
+if [ ${rsync_status} -eq 0 ]; then
   echo "Backup successfully finished at $(date +"%Y-%m-%d %H:%M:%S") after $((end-start)) seconds"
 else 
   echo "Backup FAILED at $(date +"%Y-%m-%d %H:%M:%S") after $((end-start)) seconds"
